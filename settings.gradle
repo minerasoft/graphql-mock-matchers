@@ -1,0 +1,5 @@
+rootProject.name = 'graphql-mock-matchers'
+
+include 'graphql-mock-matchers-core'
+include 'graphql-mock-matchers-wiremock'
+include 'examples-wiremock-junit5'

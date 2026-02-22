@@ -1,0 +1,25 @@
+{
+  "request": {
+    "method": "POST",
+    "url": "/graphql",
+    "customMatcher": {
+      "name": "GraphqlOperationRequestMatcher",
+      "parameters": {
+        "operation": "query { countries { name currency } }"
+      }
+    }
+  },
+  "response": {
+    "status": 200,
+    "headers": {
+      "Content-Type": "application/json"
+    },
+    "jsonBody": {
+      "data": {
+        "countries": [
+          { "name": "Andorra", "currency": "EUR" }
+        ]
+      }
+    }
+  }
+}
