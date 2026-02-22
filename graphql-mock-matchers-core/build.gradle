@@ -1,15 +1,79 @@
 plugins {
     id 'java-library'
+    id 'maven-publish'
+    id 'signing'
+}
+
+java {
+    withSourcesJar()
+    withJavadocJar()
 }
 
 dependencies {
-    implementation 'com.graphql-java:graphql-java:25.0'
+    implementation libs.graphql.java
 
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation platform(libs.junit.bom)
+    testImplementation libs.junit.jupiter
+    testRuntimeOnly libs.junit.launcher
 }
 
 tasks.named('test', Test) {
     useJUnitPlatform()
+}
+
+publishing {
+    publications {
+        mavenJava(MavenPublication) {
+            from components.java
+            artifactId = 'graphql-mock-matchers-core'
+
+            pom {
+                name = 'graphql-mock-matchers-core'
+                description = 'Semantic GraphQL matcher core utilities'
+                url = 'https://github.com/minerasoft/graphql-mock-matchers'
+
+                licenses {
+                    license {
+                        name = 'Apache License, Version 2.0'
+                        url = 'https://www.apache.org/licenses/LICENSE-2.0'
+                    }
+                }
+
+                developers {
+                    developer {
+                        id = 'ram'
+                        name = 'Ram'
+                    }
+                }
+
+                scm {
+                    url = 'https://github.com/minerasoft/graphql-mock-matchers'
+                    connection = 'scm:git:https://github.com/minerasoft/graphql-mock-matchers.git'
+                    developerConnection = 'scm:git:ssh://git@github.com:minerasoft/graphql-mock-matchers.git'
+                }
+            }
+        }
+    }
+
+    repositories {
+        maven {
+            name = 'OSSRH'
+            url = uri(version.toString().endsWith('SNAPSHOT')
+                    ? 'https://s01.oss.sonatype.org/content/repositories/snapshots/'
+                    : 'https://s01.oss.sonatype.org/service/local/staging/deploy/maven2/')
+            credentials {
+                username = findProperty('ossrhUsername') ?: System.getenv('OSSRH_USERNAME')
+                password = findProperty('ossrhPassword') ?: System.getenv('OSSRH_PASSWORD')
+            }
+        }
+    }
+}
+
+signing {
+    def signingKey = findProperty('signingKey') ?: System.getenv('SIGNING_KEY')
+    def signingPassword = findProperty('signingPassword') ?: System.getenv('SIGNING_PASSWORD')
+    if (signingKey && signingPassword) {
+        useInMemoryPgpKeys(signingKey, signingPassword)
+        sign publishing.publications.mavenJava
+    }
 }

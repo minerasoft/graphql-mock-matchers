@@ -1,11 +1,15 @@
 {
   "request": {
     "method": "POST",
-    "url": "/graphql",
+    "url": "/graphql-advanced",
     "customMatcher": {
       "name": "GraphqlOperationRequestMatcher",
       "parameters": {
-        "query": "query { countries { name currency } }"
+        "query": "query Country($code: String!) { country(code: $code) { name code } }",
+        "operationName": "Country",
+        "variables": {
+          "code": "AD"
+        }
       }
     }
   },
@@ -16,9 +20,7 @@
     },
     "jsonBody": {
       "data": {
-        "countries": [
-          { "name": "Andorra", "currency": "EUR" }
-        ]
+        "country": { "name": "Andorra", "code": "AD" }
       }
     }
   }

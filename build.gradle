@@ -1,20 +1,78 @@
-plugins {
-    id 'java'
-}
-
 allprojects {
     group = 'org.minerasoftware'
-    version = '1.0-SNAPSHOT'
-
-    java {
-        toolchain {
-            languageVersion = JavaLanguageVersion.of(21)
-        }
-    }
+    version = findProperty('projectVersion') ?: '1.0-SNAPSHOT'
 }
 
 subprojects {
     repositories {
         mavenCentral()
+    }
+
+    plugins.withId('java') {
+        java {
+            toolchain {
+                languageVersion = JavaLanguageVersion.of(21)
+            }
+        }
+    }
+}
+
+def projectVersionFile = file('gradle.properties')
+def projectVersionPattern = ~/(?m)^projectVersion=.*$/
+
+def currentProjectVersion = {
+    def match = (projectVersionFile.text =~ /(?m)^projectVersion=(.+)$/)
+    if (!match.find()) {
+        throw new GradleException("projectVersion is missing in gradle.properties")
+    }
+    return match.group(1).trim()
+}
+
+def writeProjectVersion = { String newVersion ->
+    def content = projectVersionFile.text
+    if (projectVersionPattern.matcher(content).find()) {
+        content = content.replaceFirst(/(?m)^projectVersion=.*$/, "projectVersion=${newVersion}")
+    } else {
+        content = content + System.lineSeparator() + "projectVersion=${newVersion}" + System.lineSeparator()
+    }
+    projectVersionFile.text = content
+    println("Updated projectVersion -> ${newVersion}")
+}
+
+tasks.register('setReleaseVersion') {
+    group = 'release'
+    description = 'Set release version in gradle.properties. Usage: ./gradlew setReleaseVersion -PreleaseVersion=1.2.3'
+    def releaseVersionProvider = providers.gradleProperty('releaseVersion')
+    doLast {
+        def releaseVersion = releaseVersionProvider.orNull
+        if (!releaseVersion) {
+            throw new GradleException("Missing -PreleaseVersion (example: -PreleaseVersion=1.2.3)")
+        }
+        if (releaseVersion.endsWith('-SNAPSHOT')) {
+            throw new GradleException("releaseVersion must not end with -SNAPSHOT")
+        }
+        writeProjectVersion(releaseVersion)
+    }
+}
+
+tasks.register('setNextSnapshotVersion') {
+    group = 'release'
+    description = 'Set next snapshot version in gradle.properties. Usage: ./gradlew setNextSnapshotVersion -PnextVersion=1.2.4-SNAPSHOT'
+    def nextVersionProvider = providers.gradleProperty('nextVersion')
+    doLast {
+        def nextVersion = nextVersionProvider.orNull
+        if (!nextVersion) {
+            def current = currentProjectVersion()
+            def base = current.replace('-SNAPSHOT', '')
+            def parts = base.tokenize('.')
+            if (parts.size() != 3 || !parts.every { it.isInteger() }) {
+                throw new GradleException("Cannot infer next snapshot from '${current}'. Provide -PnextVersion explicitly.")
+            }
+            nextVersion = "${parts[0]}.${parts[1]}.${parts[2].toInteger() + 1}-SNAPSHOT"
+        }
+        if (!nextVersion.endsWith('-SNAPSHOT')) {
+            nextVersion = "${nextVersion}-SNAPSHOT"
+        }
+        writeProjectVersion(nextVersion)
     }
 }

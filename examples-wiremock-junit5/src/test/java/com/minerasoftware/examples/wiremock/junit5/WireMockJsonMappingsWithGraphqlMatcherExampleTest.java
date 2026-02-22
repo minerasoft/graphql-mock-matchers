@@ -61,4 +61,26 @@ class WireMockJsonMappingsWithGraphqlMatcherExampleTest {
         var resp = client.send(req, HttpResponse.BodyHandlers.ofString());
         assertEquals(200, resp.statusCode());
     }
+
+    @Test
+    void matchesOperationWithOperationNameAndVariablesFromJsonMapping() throws Exception {
+        String body = """
+                {
+                  "query": "query Country($code: String!) { country(code: $code) { code name } }",
+                  "operationName": "Country",
+                  "variables": {
+                    "code": "AD"
+                  }
+                }
+                """;
+
+        var req = HttpRequest.newBuilder()
+                .uri(URI.create(server.baseUrl() + "/graphql-advanced"))
+                .header("Content-Type", "application/json")
+                .POST(HttpRequest.BodyPublishers.ofString(body))
+                .build();
+
+        var resp = client.send(req, HttpResponse.BodyHandlers.ofString());
+        assertEquals(200, resp.statusCode());
+    }
 }

@@ -10,6 +10,16 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 class GraphqlMatchersTest {
 
     @Test
+    void defaultMatcherPerformsSemanticComparison() {
+        GraphqlMatcher matcher = GraphqlMatchers.defaultMatcher();
+
+        assertTrue(matcher.semanticallyEqual(
+                "query { countries { name currency } }",
+                "query { countries { currency name } }"
+        ));
+    }
+
+    @Test
     void defaultMatcherReturnsSingletonGraphqlJavaMatcher() {
         GraphqlMatcher first = GraphqlMatchers.defaultMatcher();
         GraphqlMatcher second = GraphqlMatchers.defaultMatcher();
@@ -19,12 +29,50 @@ class GraphqlMatchersTest {
     }
 
     @Test
-    void defaultMatcherPerformsSemanticComparison() {
+    void defaultMatcherPerformsSemanticComparisonForMutation() {
         GraphqlMatcher matcher = GraphqlMatchers.defaultMatcher();
 
         assertTrue(matcher.semanticallyEqual(
-                "query { countries { name currency } }",
-                "query { countries { currency name } }"
+                """
+                mutation UpdateCountry($code: String!, $name: String!) {
+                  updateCountry(code: $code, name: $name) {
+                    code
+                    name
+                  }
+                }
+                """,
+                """
+                mutation UpdateCountry($name: String!, $code: String!) {
+                  updateCountry(name: $name, code: $code) {
+                    name
+                    code
+                  }
+                }
+                """
+        ));
+    }
+
+    @Test
+    void defaultMatcherPerformsSemanticComparisonForSubscription() {
+        GraphqlMatcher matcher = GraphqlMatchers.defaultMatcher();
+
+        assertTrue(matcher.semanticallyEqual(
+                """
+                subscription CountryUpdated {
+                  countryUpdated {
+                    code
+                    name
+                  }
+                }
+                """,
+                """
+                subscription CountryUpdated {
+                  countryUpdated {
+                    name
+                    code
+                  }
+                }
+                """
         ));
     }
 }

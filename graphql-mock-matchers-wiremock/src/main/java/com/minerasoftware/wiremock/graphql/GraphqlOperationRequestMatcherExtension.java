@@ -2,49 +2,34 @@ package com.minerasoftware.wiremock.graphql;
 
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.common.Json;
-import com.github.tomakehurst.wiremock.common.Strings;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
-import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
-import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
 
+import java.util.LinkedHashMap;
 import java.util.Map;
+import java.util.Objects;
 /**
  * Matches GraphQL POST requests by:
  * - operation document (request JSON field "query") - semantic matching via graphql-java engine
  * - optional operationName
  * - optional variables
- *
  * Stub parameters:
- * - operation: required (expected GraphQL document string)
+ * - query: required (expected GraphQL document string)
  * - operationName: optional
  * - variables: optional (Map)
  */
 public class GraphqlOperationRequestMatcherExtension extends RequestMatcherExtension {
-    public static final String NAME = "GraphqlOperationRequestMatcher";
-
-    private final String defaultExpectedOperation;
-
-    /**
-     * Required for JSON mapping usage (WireMock instantiates extensions with no-arg constructor).
-     */
-    public GraphqlOperationRequestMatcherExtension() {
-        this(null);
-    }
-
-    /**
-     * Programmatic use (andMatching(graphqlOperation("..."))).
-     */
-    private GraphqlOperationRequestMatcherExtension(String defaultExpectedOperation) {
-        this.defaultExpectedOperation = defaultExpectedOperation;
-    }
+    public static final String GRAPHQL_OPERATION_MATCHER = "GraphqlOperationRequestMatcher";
+    private static final GraphqlOperationPattern OPERATION_PATTERN = new GraphqlOperationPattern();
+    private static final GraphqlOperationNamePattern OPERATION_NAME_PATTERN = new GraphqlOperationNamePattern();
+    private static final GraphqlVariablePattern VARIABLE_PATTERN = new GraphqlVariablePattern();
 
     @Override
     public String getName() {
-        return NAME;
+        return GRAPHQL_OPERATION_MATCHER;
     }
 
     @Override
@@ -60,62 +45,13 @@ public class GraphqlOperationRequestMatcherExtension extends RequestMatcherExten
                 return MatchResult.noMatch(SubEvent.error("Request body is empty"));
             }
 
-            // ---- Actual request fields (GraphQL over HTTP) ----
-            String actualOperation = asString(requestJson.get("query"));          // required by spec
-            String actualOperationName = asString(requestJson.get("operationName")); // optional
-            Object actualVariablesObj = requestJson.get("variables");               // optional
+            GraphqlMatchContext context = new GraphqlMatchContext(requestJson, parameters);
 
-            if (Strings.isNullOrEmpty(actualOperation)) {
-                return MatchResult.noMatch(SubEvent.error("Request body does not contain a 'query' field"));
-            }
-
-            // ---- Expected (from stub parameters) ----
-            String expectedOperation = getString(parameters, "operation", defaultExpectedOperation);
-            if (Strings.isNullOrEmpty(expectedOperation)) {
-                return MatchResult.noMatch(SubEvent.error("Expected operation not configured (use parameters.operation or graphqlOperation(...))"));
-            }
-
-            String expectedOperationName = getString(parameters, "operationName", null); // optional
-            Object expectedVariablesObj = getObject(parameters, "variables");            // optional
-
-            // ---- 1) Operation match (required) ----
-            MatchResult opResult = GraphqlWireMockOperationMatchResult.of(expectedOperation, actualOperation);
-            if (!opResult.isExactMatch()) {
-                return opResult;
-            }
-
-            // ---- 2) operationName match (optional) ----
-            if (expectedOperationName != null) {
-                if (!new EqualToPattern(expectedOperationName).match(actualOperationName).isExactMatch()) {
-                    return MatchResult.noMatch(SubEvent.error("operationName mismatch"));
-                }
-            }
-
-            // ---- 3) variables match (optional; subset by default) ----
-            if (expectedVariablesObj != null) {
-                if (actualVariablesObj == null) {
-                    return MatchResult.noMatch(SubEvent.error("variables mismatch"));
-                }
-
-                String expectedVarsJson = Json.write(expectedVariablesObj);
-                String actualVarsJson = Json.write(actualVariablesObj);
-
-                boolean ignoreArrayOrder = true;
-                boolean ignoreExtraElements = true; // subset semantics
-
-                boolean varsMatch = new EqualToJsonPattern(
-                        expectedVarsJson,
-                        ignoreArrayOrder,
-                        ignoreExtraElements
-                ).match(actualVarsJson).isExactMatch();
-
-                if (!varsMatch) {
-                    return MatchResult.noMatch(SubEvent.error("variables mismatch"));
-                }
-            }
-
-            return MatchResult.exactMatch();
-
+            return MatchResult.aggregate(
+                    OPERATION_PATTERN.match(context),
+                    OPERATION_NAME_PATTERN.match(context),
+                    VARIABLE_PATTERN.match(context)
+            );
         } catch (Exception e) {
             return MatchResult.noMatch(SubEvent.error(e.getMessage()));
         }
@@ -123,36 +59,67 @@ public class GraphqlOperationRequestMatcherExtension extends RequestMatcherExten
 
     /**
      * Programmatic stubbing helper:
-     * stubFor(post("/graphql").andMatching(graphqlOperation("query {...}")) ...)
+     * stubFor(post("/graphql").andMatching(
+     *     GRAPHQL_OPERATION_MATCHER,
+     *     query("query {...}")
+     * ))
      */
-    public static RequestMatcherExtension graphqlOperation(String operation) {
-        return new GraphqlOperationRequestMatcherExtension(operation);
+    public static Parameters query(String query) {
+        return parameters(query).build();
     }
 
-    // ---------- helpers ----------
-
-    private static String asString(Object o) {
-        return o == null ? null : String.valueOf(o);
+    /**
+     * Programmatic stubbing helper for advanced configuration:
+     * stubFor(post("/graphql").andMatching(
+     *     GRAPHQL_OPERATION_MATCHER,
+     *     parameters("query {...}").operationName("Name").variable("k", "v").build()
+     * ))
+     */
+    public static ParametersBuilder parameters(String query) {
+        return new ParametersBuilder(query);
     }
 
-    private static String getString(Parameters p, String key, String fallback) {
-        if (p != null && p.containsKey(key)) {
-            String v = p.getString(key);
-            return Strings.isNullOrEmpty(v) ? fallback : v;
+    public static final class ParametersBuilder {
+        private final String query;
+        private String operationName;
+        private final Map<String, Object> variables = new LinkedHashMap<>();
+
+        private ParametersBuilder(String query) {
+            this.query = Objects.requireNonNull(query, "query must not be null");
         }
-        return fallback;
-    }
 
-    private static Object getObject(Parameters p, String key) {
-        if (p != null && p.containsKey(key)) {
-            return p.get(key);
+        public ParametersBuilder operationName(String operationName) {
+            this.operationName = operationName;
+            return this;
         }
-        return null;
+
+        public ParametersBuilder variables(Map<String, ?> variables) {
+            this.variables.clear();
+            if (variables != null) {
+                this.variables.putAll(variables);
+            }
+            return this;
+        }
+
+        public ParametersBuilder variable(String name, Object value) {
+            this.variables.put(name, value);
+            return this;
+        }
+
+        public Parameters build() {
+            Map<String, Object> parameters = new LinkedHashMap<>();
+            parameters.put("query", query);
+
+            if (operationName != null) {
+                parameters.put("operationName", operationName);
+            }
+
+            if (!variables.isEmpty()) {
+                parameters.put("variables", new LinkedHashMap<>(variables));
+            }
+
+            return Parameters.from(parameters);
+        }
     }
 
-    @Override
-    public String getExpected() {
-        // For JSON mappings, expected operation is per-stub (parameters), so this is best-effort for diagnostics.
-        return defaultExpectedOperation;
-    }
 }

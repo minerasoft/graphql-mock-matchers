@@ -1,0 +1,16 @@
+[versions]
+graphqlJava = "25.0"
+wiremock = "4.0.0-beta.29"
+junit = "5.10.0"
+slf4j = "2.0.13"
+
+[libraries]
+graphql-java = { module = "com.graphql-java:graphql-java", version.ref = "graphqlJava" }
+wiremock-core = { module = "org.wiremock:wiremock-core", version.ref = "wiremock" }
+wiremock-jetty = { module = "org.wiremock:wiremock-jetty", version.ref = "wiremock" }
+wiremock-httpclient-apache5 = { module = "org.wiremock:wiremock-httpclient-apache5", version.ref = "wiremock" }
+wiremock-junit5 = { module = "org.wiremock:wiremock-junit5", version.ref = "wiremock" }
+slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4j" }
+junit-bom = { module = "org.junit:junit-bom", version.ref = "junit" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+junit-launcher = { module = "org.junit.platform:junit-platform-launcher" }

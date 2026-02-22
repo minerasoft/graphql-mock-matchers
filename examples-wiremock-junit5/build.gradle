@@ -4,14 +4,14 @@ plugins {
 
 dependencies {
     testImplementation project(':graphql-mock-matchers-wiremock')
-    testImplementation "org.wiremock:wiremock-jetty:4.0.0-beta.29"
-    testImplementation "org.wiremock:wiremock-httpclient-apache5:4.0.0-beta.29"
-    testImplementation "org.wiremock:wiremock-junit5:4.0.0-beta.29"
+    testImplementation libs.wiremock.jetty
+    testImplementation libs.wiremock.httpclient.apache5
+    testImplementation libs.wiremock.junit5
 
-    testImplementation platform('org.junit:junit-bom:5.10.0')
-    testImplementation 'org.junit.jupiter:junit-jupiter'
-    testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
-    testImplementation "org.slf4j:slf4j-simple:2.0.13"
+    testImplementation platform(libs.junit.bom)
+    testImplementation libs.junit.jupiter
+    testRuntimeOnly libs.junit.launcher
+    testImplementation libs.slf4j.simple
 }
 
 tasks.named('test', Test) {
