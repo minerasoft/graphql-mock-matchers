@@ -2,7 +2,7 @@
 graphqlJava = "25.0"
 wiremock = "4.0.0-beta.29"
 junit = "5.10.0"
-slf4j = "2.0.13"
+slf4j = "2.0.17"
 
 [libraries]
 graphql-java = { module = "com.graphql-java:graphql-java", version.ref = "graphqlJava" }
