@@ -2,6 +2,12 @@
 
 Semantic GraphQL request matching utilities, with WireMock integration.
 
+## Why Use This Library
+- GraphQL semantic matching instead of raw string matching.
+- Field/projection order differences do not break stubs.
+- Optional `operationName` and `variables` matching for stricter request contracts.
+- Works with both WireMock DSL and JSON mappings.
+
 ## Modules
 - `graphql-mock-matchers-core`: GraphQL semantic matcher based on `graphql-java`.
 - `graphql-mock-matchers-wiremock`: WireMock request matcher extension for GraphQL query/operationName/variables.
@@ -22,6 +28,13 @@ stubFor(post(urlEqualTo("/graphql"))
     .willReturn(okJson("{\"data\":{}}")));
 ```
 
+This request still matches semantically (same fields, different order):
+```json
+{
+  "query": "query { countries { currency name } }"
+}
+```
+
 Advanced parameters:
 ```java
 import static com.minerasoftware.wiremock.graphql.GraphqlOperationRequestMatcherExtension.GRAPHQL_OPERATION_MATCHER;
@@ -35,6 +48,30 @@ import static com.minerasoftware.wiremock.graphql.GraphqlOperationRequestMatcher
     .build()
 )
 ```
+
+## JSON Mapping Example
+```json
+{
+  "request": {
+    "method": "POST",
+    "url": "/graphql",
+    "customMatcher": {
+      "name": "GraphqlOperationRequestMatcher",
+      "parameters": {
+        "query": "query { countries { name currency } }"
+      }
+    }
+  },
+  "response": {
+    "status": 200
+  }
+}
+```
+
+## Full Runnable Examples
+- DSL usage: `examples-wiremock-junit5/src/test/java/com/minerasoftware/examples/wiremock/junit5/WireMockDslGraphqlMatcherExampleTest.java`
+- JSON mapping usage: `examples-wiremock-junit5/src/test/java/com/minerasoftware/examples/wiremock/junit5/WireMockJsonMappingsWithGraphqlMatcherExampleTest.java`
+- Mapping files: `examples-wiremock-junit5/src/test/resources/mappings/`
 
 ## Build
 ```bash
