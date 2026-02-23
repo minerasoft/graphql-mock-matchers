@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.matching.AbsentPattern;
 import com.github.tomakehurst.wiremock.matching.EqualToJsonPattern;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 
-final class GraphqlVariablePattern {
+final class GraphqlVariableMatcher {
 
     private static final boolean IGNORE_ARRAY_ORDER = false;
     private static final boolean IGNORE_EXTRA_ELEMENTS = false;

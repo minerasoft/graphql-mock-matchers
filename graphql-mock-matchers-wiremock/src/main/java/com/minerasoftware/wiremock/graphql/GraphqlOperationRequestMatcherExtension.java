@@ -23,9 +23,9 @@ import java.util.Objects;
  */
 public class GraphqlOperationRequestMatcherExtension extends RequestMatcherExtension {
     public static final String GRAPHQL_OPERATION_MATCHER = "GraphqlOperationRequestMatcher";
-    private static final GraphqlOperationPattern OPERATION_PATTERN = new GraphqlOperationPattern();
-    private static final GraphqlOperationNamePattern OPERATION_NAME_PATTERN = new GraphqlOperationNamePattern();
-    private static final GraphqlVariablePattern VARIABLE_PATTERN = new GraphqlVariablePattern();
+    private static final GraphqlOperationMatcher OPERATION_MATCHER = new GraphqlOperationMatcher();
+    private static final GraphqlOperationNameMatcher OPERATION_NAME_MATCHER = new GraphqlOperationNameMatcher();
+    private static final GraphqlVariableMatcher VARIABLE_MATCHER = new GraphqlVariableMatcher();
 
     @Override
     public String getName() {
@@ -48,9 +48,9 @@ public class GraphqlOperationRequestMatcherExtension extends RequestMatcherExten
             GraphqlMatchContext context = new GraphqlMatchContext(requestJson, parameters);
 
             return MatchResult.aggregate(
-                    OPERATION_PATTERN.match(context),
-                    OPERATION_NAME_PATTERN.match(context),
-                    VARIABLE_PATTERN.match(context)
+                    OPERATION_MATCHER.match(context),
+                    OPERATION_NAME_MATCHER.match(context),
+                    VARIABLE_MATCHER.match(context)
             );
         } catch (Exception e) {
             return MatchResult.noMatch(SubEvent.error(e.getMessage()));

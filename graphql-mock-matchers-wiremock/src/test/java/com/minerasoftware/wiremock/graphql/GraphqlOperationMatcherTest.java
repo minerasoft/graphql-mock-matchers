@@ -11,11 +11,11 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
-class GraphqlOperationPatternTest {
+class GraphqlOperationMatcherTest {
 
     @Test
     void returnsExactMatchForSemanticallyEquivalentOperations() {
-        MatchResult result = new GraphqlOperationPattern().match(context(
+        MatchResult result = new GraphqlOperationMatcher().match(context(
                 "query { countries { name currency } }",
                 "query { countries { currency name } }"
         ));
@@ -26,7 +26,7 @@ class GraphqlOperationPatternTest {
 
     @Test
     void returnsNoExactMatchAndPositiveDistanceForDifferentOperations() {
-        MatchResult result = new GraphqlOperationPattern().match(context(
+        MatchResult result = new GraphqlOperationMatcher().match(context(
                 "query { countries { name } }",
                 "query { countries { code } }"
         ));
@@ -37,14 +37,14 @@ class GraphqlOperationPatternTest {
 
     @Test
     void returnsNoMatchWhenExpectedOperationIsEmpty() {
-        MatchResult result = new GraphqlOperationPattern().match(context("", "query { ping }"));
+        MatchResult result = new GraphqlOperationMatcher().match(context("", "query { ping }"));
 
         assertFalse(result.isExactMatch());
     }
 
     @Test
     void returnsNoMatchWhenActualOperationIsEmpty() {
-        MatchResult result = new GraphqlOperationPattern().match(context("query { ping }", ""));
+        MatchResult result = new GraphqlOperationMatcher().match(context("query { ping }", ""));
 
         assertFalse(result.isExactMatch());
     }
@@ -63,7 +63,7 @@ class GraphqlOperationPatternTest {
             }
         };
 
-        MatchResult result = new GraphqlOperationPattern(throwingMatcher)
+        MatchResult result = new GraphqlOperationMatcher(throwingMatcher)
                 .match(context("query { ping }", "query { ping }"));
 
         assertFalse(result.isExactMatch());

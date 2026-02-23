@@ -4,7 +4,7 @@ import com.github.tomakehurst.wiremock.matching.AbsentPattern;
 import com.github.tomakehurst.wiremock.matching.EqualToPattern;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 
-final class GraphqlOperationNamePattern {
+final class GraphqlOperationNameMatcher {
 
     MatchResult match(GraphqlMatchContext context) {
         String expectedOperationName = context.parameterString("operationName");

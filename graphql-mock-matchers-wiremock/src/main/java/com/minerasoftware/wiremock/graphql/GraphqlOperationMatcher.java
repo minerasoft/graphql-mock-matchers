@@ -8,15 +8,15 @@ import com.minerasoftware.graphql.core.GraphqlMatchers;
 
 import java.util.List;
 
-final class GraphqlOperationPattern {
+final class GraphqlOperationMatcher {
 
     private final GraphqlMatcher matcher;
 
-    GraphqlOperationPattern() {
+    GraphqlOperationMatcher() {
         this(GraphqlMatchers.defaultMatcher());
     }
 
-    GraphqlOperationPattern(GraphqlMatcher matcher) {
+    GraphqlOperationMatcher(GraphqlMatcher matcher) {
         this.matcher = matcher;
     }
 
