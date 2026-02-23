@@ -69,9 +69,9 @@ import static com.minerasoftware.wiremock.graphql.GraphqlOperationRequestMatcher
 ```
 
 ## Full Runnable Examples
-- DSL usage: `examples-wiremock-junit5/src/test/java/com/minerasoftware/examples/wiremock/junit5/WireMockDslGraphqlMatcherExampleTest.java`
-- JSON mapping usage: `examples-wiremock-junit5/src/test/java/com/minerasoftware/examples/wiremock/junit5/WireMockJsonMappingsWithGraphqlMatcherExampleTest.java`
-- Mapping files: `examples-wiremock-junit5/src/test/resources/mappings/`
+- DSL usage: [WireMockDslGraphqlMatcherExampleTest.java](examples-wiremock-junit5/src/test/java/com/minerasoftware/examples/wiremock/junit5/WireMockDslGraphqlMatcherExampleTest.java)
+- JSON mapping usage: [WireMockJsonMappingsWithGraphqlMatcherExampleTest.java](examples-wiremock-junit5/src/test/java/com/minerasoftware/examples/wiremock/junit5/WireMockJsonMappingsWithGraphqlMatcherExampleTest.java)
+- Mapping files: [examples-wiremock-junit5/src/test/resources/mappings/](examples-wiremock-junit5/src/test/resources/mappings/)
 
 ## Build
 ```bash
