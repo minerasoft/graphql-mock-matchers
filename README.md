@@ -20,11 +20,10 @@ Semantic GraphQL request matching utilities, with WireMock integration.
 ## Quick Start (WireMock DSL)
 ```java
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
-import static com.minerasoftware.wiremock.graphql.GraphqlOperationRequestMatcherExtension.GRAPHQL_OPERATION_MATCHER;
-import static com.minerasoftware.wiremock.graphql.GraphqlOperationRequestMatcherExtension.query;
+import static com.minerasoftware.wiremock.graphql.GraphqlOperationRequestMatcherExtension.graphqlRequest;
 
 stubFor(post(urlEqualTo("/graphql"))
-    .andMatching(GRAPHQL_OPERATION_MATCHER, query("query { countries { name currency } }"))
+    .andMatching(graphqlRequest("query { countries { name currency } }"))
     .willReturn(okJson("{\"data\":{}}")));
 ```
 
@@ -37,16 +36,15 @@ This request still matches semantically (same fields, different order):
 
 Advanced parameters:
 ```java
-import static com.minerasoftware.wiremock.graphql.GraphqlOperationRequestMatcherExtension.GRAPHQL_OPERATION_MATCHER;
+import static com.minerasoftware.wiremock.graphql.GraphqlOperationRequestMatcherExtension.graphqlRequest;
 import static com.minerasoftware.wiremock.graphql.GraphqlOperationRequestMatcherExtension.parameters;
 
-.andMatching(
-  GRAPHQL_OPERATION_MATCHER,
+.andMatching(graphqlRequest(
   parameters("query Country($code: String!) { country(code: $code) { name } }")
     .operationName("Country")
     .variable("code", "AD")
     .build()
-)
+))
 ```
 
 ## JSON Mapping Example

@@ -1,6 +1,7 @@
 package com.minerasoftware.wiremock.graphql;
 
 import com.github.tomakehurst.wiremock.extension.Parameters;
+import com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition;
 import org.junit.jupiter.api.Test;
 
 import java.util.Map;
@@ -27,6 +28,17 @@ class GraphqlOperationRequestMatcherExtensionTest {
         assertEquals("query { ping }", parameters.getString("query"));
         assertFalse(parameters.containsKey("operationName"));
         assertFalse(parameters.containsKey("variables"));
+    }
+
+    @Test
+    void graphqlRequestHelperBuildsQueryOnlyCustomMatcherDefinition() {
+        CustomMatcherDefinition matcherDefinition =
+                GraphqlOperationRequestMatcherExtension.graphqlRequest("query { ping }");
+
+        assertEquals(GraphqlOperationRequestMatcherExtension.GRAPHQL_OPERATION_MATCHER, matcherDefinition.getName());
+        assertEquals("query { ping }", matcherDefinition.getParameters().getString("query"));
+        assertFalse(matcherDefinition.getParameters().containsKey("operationName"));
+        assertFalse(matcherDefinition.getParameters().containsKey("variables"));
     }
 
     @Test
@@ -90,6 +102,22 @@ class GraphqlOperationRequestMatcherExtensionTest {
         assertEquals("query Country($code: String!) { country(code: $code) { name } }", parameters.getString("query"));
         assertEquals("Country", parameters.getString("operationName"));
         assertEquals("AD", ((Map<?, ?>) parameters.get("variables")).get("code"));
+    }
+
+    @Test
+    void graphqlRequestHelperCanWrapAdvancedParameters() {
+        Parameters parameters = GraphqlOperationRequestMatcherExtension.parameters("query Country($code: String!) { country(code: $code) { name } }")
+                .operationName("Country")
+                .variable("code", "AD")
+                .build();
+
+        CustomMatcherDefinition matcherDefinition =
+                GraphqlOperationRequestMatcherExtension.graphqlRequest(parameters);
+
+        assertEquals(GraphqlOperationRequestMatcherExtension.GRAPHQL_OPERATION_MATCHER, matcherDefinition.getName());
+        assertEquals("query Country($code: String!) { country(code: $code) { name } }", matcherDefinition.getParameters().getString("query"));
+        assertEquals("Country", matcherDefinition.getParameters().getString("operationName"));
+        assertEquals("AD", ((Map<?, ?>) matcherDefinition.getParameters().get("variables")).get("code"));
     }
 
     @Test

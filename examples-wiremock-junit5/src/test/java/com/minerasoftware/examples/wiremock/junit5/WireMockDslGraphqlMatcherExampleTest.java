@@ -14,9 +14,8 @@ import java.net.http.HttpResponse;
 
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
 import static com.github.tomakehurst.wiremock.core.WireMockConfiguration.wireMockConfig;
-import static com.minerasoftware.wiremock.graphql.GraphqlOperationRequestMatcherExtension.GRAPHQL_OPERATION_MATCHER;
+import static com.minerasoftware.wiremock.graphql.GraphqlOperationRequestMatcherExtension.graphqlRequest;
 import static com.minerasoftware.wiremock.graphql.GraphqlOperationRequestMatcherExtension.parameters;
-import static com.minerasoftware.wiremock.graphql.GraphqlOperationRequestMatcherExtension.query;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 
 /**
@@ -24,8 +23,7 @@ import static org.junit.jupiter.api.Assertions.assertEquals;
  * with WireMock's static DSL for programmatic stubbing in a JUnit 5 test.
  *
  * <p>This example configures a stub using the DSL method
- * {@code .andMatching(GRAPHQL_OPERATION_MATCHER, query(...))}
- * instead of JSON mapping files. The matcher extension is registered on the
+ * {@code .andMatching(graphqlRequest(...))} instead of JSON mapping files. The matcher extension is registered on the
  * WireMock server via {@code .extensions(...)}.
  */
 class WireMockDslGraphqlMatcherExampleTest {
@@ -53,10 +51,7 @@ class WireMockDslGraphqlMatcherExampleTest {
     @Test
     void matchesOperation() throws Exception {
         server.stubFor(post(urlEqualTo("/graphql"))
-                .andMatching(
-                        GRAPHQL_OPERATION_MATCHER,
-                        query("query { countries { name currency } }")
-                )
+                .andMatching(graphqlRequest("query { countries { name currency } }"))
                 .willReturn(okJson("""
                           { "data": { "countries": [ { "name": "Andorra", "currency": "EUR" } ] } }
                         """)));
@@ -80,13 +75,12 @@ class WireMockDslGraphqlMatcherExampleTest {
     @Test
     void matchesOperationWithOperationNameAndVariables() throws Exception {
         server.stubFor(post(urlEqualTo("/graphql-advanced"))
-                .andMatching(
-                        GRAPHQL_OPERATION_MATCHER,
+                .andMatching(graphqlRequest(
                         parameters("query Country($code: String!) { country(code: $code) { name code } }")
                                 .operationName("Country")
                                 .variable("code", "AD")
                                 .build()
-                )
+                ))
                 .willReturn(okJson("""
                           { "data": { "country": { "name": "Andorra", "code": "AD" } } }
                         """)));

@@ -4,6 +4,7 @@ import com.fasterxml.jackson.core.type.TypeReference;
 import com.github.tomakehurst.wiremock.common.Json;
 import com.github.tomakehurst.wiremock.extension.Parameters;
 import com.github.tomakehurst.wiremock.http.Request;
+import com.github.tomakehurst.wiremock.matching.CustomMatcherDefinition;
 import com.github.tomakehurst.wiremock.matching.MatchResult;
 import com.github.tomakehurst.wiremock.matching.RequestMatcherExtension;
 import com.github.tomakehurst.wiremock.stubbing.SubEvent;
@@ -66,6 +67,26 @@ public class GraphqlOperationRequestMatcherExtension extends RequestMatcherExten
      */
     public static Parameters query(String query) {
         return parameters(query).build();
+    }
+
+    /**
+     * Fluent programmatic stubbing helper:
+     * stubFor(post("/graphql").andMatching(
+     *     graphqlRequest("query {...}")
+     * ))
+     */
+    public static CustomMatcherDefinition graphqlRequest(String query) {
+        return graphqlRequest(query(query));
+    }
+
+    /**
+     * Fluent programmatic stubbing helper for advanced configuration:
+     * stubFor(post("/graphql").andMatching(
+     *     graphqlRequest(parameters("query {...}").operationName("Name").variable("k", "v").build())
+     * ))
+     */
+    public static CustomMatcherDefinition graphqlRequest(Parameters parameters) {
+        return new CustomMatcherDefinition(GRAPHQL_OPERATION_MATCHER, parameters);
     }
 
     /**
