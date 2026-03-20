@@ -7,7 +7,7 @@ allprojects {
 }
 
 tasks.named('wrapper', Wrapper) {
-    distributionType = DistributionType.ALL
+    distributionType = Wrapper.DistributionType.ALL
 }
 
 def projectVersionFile = file('gradle.properties')
