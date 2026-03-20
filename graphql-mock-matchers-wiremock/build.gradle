@@ -12,13 +12,11 @@ dependencies {
     testRuntimeOnly libs.junit.launcher
 }
 
-publishing {
-    publications.named('mavenJava', MavenPublication) {
-        artifactId = 'graphql-mock-matchers-wiremock'
+mavenPublishing {
+    coordinates(project.group.toString(), 'graphql-mock-matchers-wiremock', project.version.toString())
 
-        pom {
-            name = 'graphql-mock-matchers-wiremock'
-            description = 'WireMock extension for semantic GraphQL request matching'
-        }
+    pom {
+        name = 'graphql-mock-matchers-wiremock'
+        description = 'WireMock extension for semantic GraphQL request matching'
     }
 }

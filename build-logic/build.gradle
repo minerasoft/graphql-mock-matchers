@@ -6,3 +6,7 @@ repositories {
     gradlePluginPortal()
     mavenCentral()
 }
+
+dependencies {
+    implementation 'com.vanniktech.maven.publish:com.vanniktech.maven.publish.gradle.plugin:0.36.0'
+}

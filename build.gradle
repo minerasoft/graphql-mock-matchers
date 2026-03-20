@@ -1,8 +1,12 @@
 import org.gradle.api.tasks.wrapper.Wrapper
 import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
 
+plugins {
+    id 'base'
+}
+
 allprojects {
-    group = findProperty('projectGroup') ?: 'org.minerasoftware'
+    group = findProperty('projectGroup') ?: 'io.github.minerasoft'
     version = findProperty('projectVersion') ?: '1.0-SNAPSHOT'
 }
 

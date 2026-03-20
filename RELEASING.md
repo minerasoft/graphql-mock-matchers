@@ -8,11 +8,12 @@ This project publishes the following modules:
 
 ## Prerequisites
 - Push access to `main`.
+- Sonatype Central Portal namespace and publishing credentials configured.
 - GitHub repository secrets configured:
-  - `OSSRH_USERNAME`
-  - `OSSRH_PASSWORD`
-  - `SIGNING_KEY` (ASCII-armored private key)
-  - `SIGNING_PASSWORD`
+  - `MAVEN_CENTRAL_USERNAME`
+  - `MAVEN_CENTRAL_PASSWORD`
+  - `SIGNING_IN_MEMORY_KEY` (ASCII-armored private key)
+  - `SIGNING_IN_MEMORY_KEY_PASSWORD`
 - Java 21 installed locally.
 
 ## 1. Prepare a release version
@@ -49,10 +50,10 @@ Pushing tag `v*` triggers `.github/workflows/publish.yml`.
 GitHub Actions runs the publish workflow in the background. It executes:
 
 ```bash
-./gradlew --no-daemon publish
+./gradlew --no-daemon clean publishAndReleaseToMavenCentral
 ```
 
-using the repository secrets for OSSRH credentials and artifact signing. This is part of the CI workflow, not a manual developer step.
+The Vanniktech publish plugin uploads the signed artifacts to Sonatype Central and requests release using the configured Central Portal token and in-memory signing key. This is part of the CI workflow, not a manual developer step.
 
 ## 4. Post-release: move to next snapshot
 After release succeeds:
@@ -80,3 +81,4 @@ git push origin main
 
 - CI for pushes/PRs is in `.github/workflows/ci.yml`.
 - Dependency update PRs are managed by `.github/dependabot.yml`.
+- Publishing uses the Vanniktech Maven Publish plugin against Sonatype Central, not the legacy OSSRH endpoints.

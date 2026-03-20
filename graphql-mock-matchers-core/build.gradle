@@ -10,13 +10,11 @@ dependencies {
     testRuntimeOnly libs.junit.launcher
 }
 
-publishing {
-    publications.named('mavenJava', MavenPublication) {
-        artifactId = 'graphql-mock-matchers-core'
+mavenPublishing {
+    coordinates(project.group.toString(), 'graphql-mock-matchers-core', project.version.toString())
 
-        pom {
-            name = 'graphql-mock-matchers-core'
-            description = 'Semantic GraphQL matcher core utilities'
-        }
+    pom {
+        name = 'graphql-mock-matchers-core'
+        description = 'Semantic GraphQL matcher core utilities'
     }
 }
