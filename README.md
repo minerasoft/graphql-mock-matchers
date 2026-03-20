@@ -17,6 +17,26 @@ Semantic GraphQL request matching utilities, with WireMock integration.
 - Java 21
 - Gradle Wrapper (`./gradlew`)
 
+## Dependency
+WireMock users will typically want `graphql-mock-matchers-wiremock`.
+
+Gradle:
+```groovy
+dependencies {
+    testImplementation "io.github.minerasoft:graphql-mock-matchers-wiremock:<version>"
+}
+```
+
+Maven:
+```xml
+<dependency>
+  <groupId>io.github.minerasoft</groupId>
+  <artifactId>graphql-mock-matchers-wiremock</artifactId>
+  <version>VERSION</version>
+  <scope>test</scope>
+</dependency>
+```
+
 ## Quick Start (WireMock DSL)
 ```java
 import static com.github.tomakehurst.wiremock.client.WireMock.*;
@@ -75,15 +95,6 @@ import static com.minerasoftware.wiremock.graphql.GraphqlOperationRequestMatcher
 ```bash
 ./gradlew test
 ```
-
-## Publishing (future Maven Central)
-Library modules are configured with `maven-publish` + `signing`:
-- `graphql-mock-matchers-core`
-- `graphql-mock-matchers-wiremock`
-
-To publish, provide credentials/keys via Gradle properties or environment variables:
-- `OSSRH_USERNAME`, `OSSRH_PASSWORD`
-- `SIGNING_KEY`, `SIGNING_PASSWORD`
 
 ## License
 Apache License 2.0.
