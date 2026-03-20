@@ -7,9 +7,8 @@ dependencies {
     testImplementation libs.wiremock.jetty
     testImplementation libs.wiremock.httpclient.apache5
     testImplementation libs.wiremock.junit5
-
+    testImplementation libs.slf4j.simple
     testImplementation platform(libs.junit.bom)
     testImplementation libs.junit.jupiter
     testRuntimeOnly libs.junit.launcher
-    testImplementation libs.slf4j.simple
 }
