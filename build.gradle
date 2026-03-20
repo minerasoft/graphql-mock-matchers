@@ -1,6 +1,13 @@
+import org.gradle.api.tasks.wrapper.Wrapper
+import org.gradle.api.tasks.wrapper.Wrapper.DistributionType
+
 allprojects {
     group = findProperty('projectGroup') ?: 'org.minerasoftware'
     version = findProperty('projectVersion') ?: '1.0-SNAPSHOT'
+}
+
+tasks.named('wrapper', Wrapper) {
+    distributionType = DistributionType.ALL
 }
 
 def projectVersionFile = file('gradle.properties')
