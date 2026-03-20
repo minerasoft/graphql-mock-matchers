@@ -1,20 +1,6 @@
 allprojects {
-    group = 'org.minerasoftware'
+    group = findProperty('projectGroup') ?: 'org.minerasoftware'
     version = findProperty('projectVersion') ?: '1.0-SNAPSHOT'
-}
-
-subprojects {
-    repositories {
-        mavenCentral()
-    }
-
-    plugins.withId('java') {
-        java {
-            toolchain {
-                languageVersion = JavaLanguageVersion.of(21)
-            }
-        }
-    }
 }
 
 def projectVersionFile = file('gradle.properties')

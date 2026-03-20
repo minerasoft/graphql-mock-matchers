@@ -1,5 +1,5 @@
 plugins {
-    id 'java'
+    id 'org.minerasoftware.java-common'
 }
 
 dependencies {
@@ -12,8 +12,4 @@ dependencies {
     testImplementation libs.junit.jupiter
     testRuntimeOnly libs.junit.launcher
     testImplementation libs.slf4j.simple
-}
-
-tasks.named('test', Test) {
-    useJUnitPlatform()
 }

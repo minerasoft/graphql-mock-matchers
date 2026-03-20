@@ -45,16 +45,16 @@ git push origin main --tags
 
 Pushing tag `v*` triggers `.github/workflows/publish.yml`.
 
-## 4. GitHub publish workflow
-The workflow runs:
+### What happens next
+GitHub Actions runs the publish workflow in the background. It executes:
 
 ```bash
 ./gradlew --no-daemon publish
 ```
 
-and uses the repository secrets for OSSRH credentials and artifact signing.
+using the repository secrets for OSSRH credentials and artifact signing. This is part of the CI workflow, not a manual developer step.
 
-## 5. Post-release: move to next snapshot
+## 4. Post-release: move to next snapshot
 After release succeeds:
 
 ```bash
