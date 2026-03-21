@@ -6,16 +6,6 @@ This project publishes the following modules:
 
 `examples-wiremock-junit5` is not published.
 
-## Prerequisites
-- Push access to `main`.
-- Sonatype Central Portal namespace and publishing credentials configured.
-- GitHub repository secrets configured:
-  - `MAVEN_CENTRAL_USERNAME`
-  - `MAVEN_CENTRAL_PASSWORD`
-  - `SIGNING_IN_MEMORY_KEY` (ASCII-armored private key)
-  - `SIGNING_IN_MEMORY_KEY_PASSWORD`
-- Java 21 installed locally.
-
 ## 1. Prepare a release version
 Set a release version (no `-SNAPSHOT`):
 
