@@ -1,7 +1,7 @@
 [versions]
 graphqlJava = "26.0"
 wiremock = "4.0.0-beta.34"
-junit = "6.0.3"
+junit = "6.1.0"
 slf4j = "2.0.17"
 
 [libraries]
